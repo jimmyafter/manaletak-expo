@@ -30,8 +30,8 @@ export default function Confirm() {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-      <ScrollView contentContainerStyle={s.body} keyboardShouldPersistTaps="handled">
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <ScrollView contentContainerStyle={s.body} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
         {photo ? <Image source={{ uri: photo }} style={s.photo} contentFit="cover" accessibilityLabel="" /> : null}
         <Field label={t.cfItem}><TextInput style={s.input} value={name} onChangeText={setName} placeholder={t.cfItemPh} placeholderTextColor={color.ink2} /></Field>
         <Field label={t.cfPlace} help={t.cfPlaceHelp}><TextInput style={s.input} value={place} onChangeText={setPlace} placeholder={t.cfPlacePh} placeholderTextColor={color.ink2} /></Field>
@@ -61,7 +61,7 @@ function Field({ label, help, children }: { label: string; help?: string; childr
   );
 }
 const s = StyleSheet.create({
-  body: { padding: 16, gap: 16 },
+  body: { padding: 16, paddingBottom: 120, gap: 16 },
   photo: { height: 220, borderRadius: radius.pill },
   label: { fontSize: font.body, fontWeight: "700", color: color.ink },
   help: { fontSize: font.small, color: color.ink2 },
