@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "Mana Letak",
+    "slug": "manaletak",
+    "scheme": "manaletak",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      ["expo-camera", { "cameraPermission": "Mana Letak uses the camera so you can photograph where you put things. Photos stay on your phone." }]
+    ],
+    "android": { "package": "com.manaletak.app", "permissions": ["CAMERA"] },
+    "ios": { "bundleIdentifier": "com.manaletak.app" },
+    "experiments": { "typedRoutes": false }
+  }
+}
