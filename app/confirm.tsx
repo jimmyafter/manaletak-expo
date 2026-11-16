@@ -1,7 +1,7 @@
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Keyboard, ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
 import { useT } from "../lib/i18n";
 import { activeCount, saveItem } from "../lib/repo";
 import { atFreeCap } from "../lib/quota";
@@ -18,8 +18,22 @@ export default function Confirm() {
   const [sensitive, setSensitive] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [capped, setCapped] = useState(false);
+  const [kb, setKb] = useState(0);
+  const scroll = useRef<ScrollView>(null);
+  const ys = useRef<Record<string, number>>({});
 
   useEffect(() => { activeCount().then((n) => setCapped(atFreeCap(n, false))); }, []);
+
+  useEffect(() => {
+    const show = Keyboard.addListener("keyboardDidShow", (e) => setKb(e.endCoordinates.height));
+    const hide = Keyboard.addListener("keyboardDidHide", () => setKb(0));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
+
+  const reveal = (key: string) => {
+    setTimeout(() => scroll.current?.scrollTo({ y: Math.max(0, (ys.current[key] ?? 0) - 16), animated: true }), 150);
+  };
+  const track = (key: string) => (y: number) => { ys.current[key] = y; };
 
   const save = async () => {
     if (!name.trim()) return setErr(t.cfNeedName);
@@ -30,30 +44,42 @@ export default function Confirm() {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <ScrollView contentContainerStyle={s.body} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
-        {photo ? <Image source={{ uri: photo }} style={s.photo} contentFit="cover" accessibilityLabel="" /> : null}
-        <Field label={t.cfItem}><TextInput style={s.input} value={name} onChangeText={setName} placeholder={t.cfItemPh} placeholderTextColor={color.ink2} /></Field>
-        <Field label={t.cfPlace} help={t.cfPlaceHelp}><TextInput style={s.input} value={place} onChangeText={setPlace} placeholder={t.cfPlacePh} placeholderTextColor={color.ink2} /></Field>
-        <Field label={t.cfTags}><TextInput style={s.input} value={tags} onChangeText={setTags} placeholder={t.cfTagsPh} placeholderTextColor={color.ink2} autoCapitalize="none" /></Field>
-        <View style={s.row}>
-          <View style={{ flex: 1 }}>
-            <Text style={s.label}>{t.cfSensitive}</Text>
-            <Text style={s.help}>{t.cfSensitiveHelp}</Text>
-          </View>
-          <Switch value={sensitive} onValueChange={setSensitive} trackColor={{ true: color.accent, false: color.fieldBorder }} accessibilityLabel={t.cfSensitive} />
+    <ScrollView
+      ref={scroll}
+      contentContainerStyle={[s.body, { paddingBottom: 48 + kb }]}
+      keyboardShouldPersistTaps="handled"
+    >
+      {photo ? <Image source={{ uri: photo }} style={s.photo} contentFit="cover" accessibilityLabel="" /> : null}
+      <Field label={t.cfItem} onY={track("name")}>
+        <TextInput style={s.input} value={name} onChangeText={setName} onFocus={() => reveal("name")}
+          placeholder={t.cfItemPh} placeholderTextColor={color.ink2} />
+      </Field>
+      <Field label={t.cfPlace} help={t.cfPlaceHelp} onY={track("place")}>
+        <TextInput style={s.input} value={place} onChangeText={setPlace} onFocus={() => reveal("place")}
+          placeholder={t.cfPlacePh} placeholderTextColor={color.ink2} />
+      </Field>
+      <Field label={t.cfTags} onY={track("tags")}>
+        <TextInput style={s.input} value={tags} onChangeText={setTags} onFocus={() => reveal("tags")}
+          placeholder={t.cfTagsPh} placeholderTextColor={color.ink2} autoCapitalize="none" />
+      </Field>
+      <View style={s.row}>
+        <View style={{ flex: 1 }}>
+          <Text style={s.label}>{t.cfSensitive}</Text>
+          <Text style={s.help}>{t.cfSensitiveHelp}</Text>
         </View>
-        {capped ? <Text style={s.warn}>{t.cfCap}</Text> : null}
-        {err ? <Text style={s.err} accessibilityRole="alert">{err}</Text> : null}
-        <Button label={t.cfSave} onPress={save} />
-      </ScrollView>
-    </KeyboardAvoidingView>
+        <Switch value={sensitive} onValueChange={setSensitive}
+          trackColor={{ true: color.accent, false: color.fieldBorder }} accessibilityLabel={t.cfSensitive} />
+      </View>
+      {capped ? <Text style={s.warn}>{t.cfCap}</Text> : null}
+      {err ? <Text style={s.err} accessibilityRole="alert">{err}</Text> : null}
+      <Button label={t.cfSave} onPress={save} />
+    </ScrollView>
   );
 }
 
-function Field({ label, help, children }: { label: string; help?: string; children: React.ReactNode }) {
+function Field({ label, help, onY, children }: { label: string; help?: string; onY: (y: number) => void; children: React.ReactNode }) {
   return (
-    <View style={{ gap: 6 }}>
+    <View style={{ gap: 6 }} onLayout={(e) => onY(e.nativeEvent.layout.y)}>
       <Text style={s.label}>{label}</Text>
       {children}
       {help ? <Text style={s.help}>{help}</Text> : null}
@@ -61,7 +87,7 @@ function Field({ label, help, children }: { label: string; help?: string; childr
   );
 }
 const s = StyleSheet.create({
-  body: { padding: 16, paddingBottom: 120, gap: 16 },
+  body: { padding: 16, gap: 16 },
   photo: { height: 220, borderRadius: radius.pill },
   label: { fontSize: font.body, fontWeight: "700", color: color.ink },
   help: { fontSize: font.small, color: color.ink2 },
