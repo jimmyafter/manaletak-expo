@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { Item } from "../../lib/db";
 import { useKeyboardHeight } from "../../lib/keyboard";
@@ -22,6 +22,14 @@ export default function ItemDetail() {
   const [moving, setMoving] = useState(false);
   const [newPlace, setNewPlace] = useState("");
   const [moveErr, setMoveErr] = useState<string | null>(null);
+  const scroll = useRef<ScrollView>(null);
+  const moveY = useRef(0);
+
+  // keep the "Where is it now?" field above the keyboard
+  const revealMove = useCallback(() => {
+    setTimeout(() => scroll.current?.scrollTo({ y: Math.max(0, moveY.current - 16), animated: true }), 150);
+  }, []);
+  useEffect(() => { if (moving && kb > 0) revealMove(); }, [moving, kb, revealMove]);
 
   const load = useCallback(() => {
     getItem(String(id)).then((it) => { setItem(it); if (it) setNewPlace(it.path_text); });
@@ -54,7 +62,7 @@ export default function ItemDetail() {
     ]);
 
   return (
-    <ScrollView contentContainerStyle={[s.body, { paddingBottom: 48 + kb }]} keyboardShouldPersistTaps="handled">
+    <ScrollView ref={scroll} contentContainerStyle={[s.body, { paddingBottom: 48 + kb }]} keyboardShouldPersistTaps="handled">
       {uri && !hiddenPhoto ? (
         <Image source={{ uri }} style={s.photo} contentFit="cover" accessibilityLabel="" />
       ) : item.sensitive ? (
@@ -93,9 +101,9 @@ export default function ItemDetail() {
       ) : null}
 
       {moving ? (
-        <View style={{ gap: 8 }}>
+        <View style={{ gap: 8 }} onLayout={(e) => { moveY.current = e.nativeEvent.layout.y; revealMove(); }}>
           <Text style={s.label}>{t.dtMoveTitle}</Text>
-          <PlaceField value={newPlace} onChangeText={setNewPlace} placeholder={t.cfPlacePh} />
+          <PlaceField value={newPlace} onChangeText={setNewPlace} onFocus={revealMove} placeholder={t.cfPlacePh} />
           <Text style={s.help}>{t.cfPlaceHelp}</Text>
           {moveErr ? <Text style={{ color: color.danger, fontSize: font.body, fontWeight: "600" }} accessibilityRole="alert">{moveErr}</Text> : null}
           <Button label={t.dtMoveSave} onPress={saveMove} />
