@@ -1,7 +1,7 @@
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { Image } from "expo-image";
 import { useCallback, useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, TextInput, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import type { Item } from "../../lib/db";
 import { useT } from "../../lib/i18n";
 import { displayPath } from "../../lib/path";
@@ -11,6 +11,7 @@ import { color, font, radius } from "../../lib/theme";
 
 export default function Find() {
   const { t } = useT();
+  const router = useRouter();
   const [q, setQ] = useState("");
   const [recents, setRecents] = useState<Item[]>([]);
   const [hits, setHits] = useState<Item[]>([]);
@@ -31,7 +32,11 @@ export default function Find() {
       {!searching && recents.length > 0 ? <Text style={s.sub}>{t.findRecent}</Text> : null}
       <FlatList
         data={data} keyExtractor={(i) => i.id} contentContainerStyle={{ gap: 16, paddingBottom: 24 }}
-        renderItem={({ item }) => <ResultCard item={item} hidden={t.findSensitive} />}
+        renderItem={({ item }) => (
+          <Pressable accessibilityRole="button" accessibilityLabel={item.name} onPress={() => router.push({ pathname: "/item/[id]", params: { id: item.id } })}>
+            <ResultCard item={item} hidden={t.findSensitive} />
+          </Pressable>
+        )}
       />
     </View>
   );

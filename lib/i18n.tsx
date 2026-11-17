@@ -31,6 +31,11 @@ const S = {
     pnInside: "Inside a place", pnInsideSub: "Like a cupboard, shelf or drawer", pnParent: "Which room?", pnName: "Place name",
     pnPh: "e.g. Garage", pnIdeas: "Ideas", pnSave: "Save place", pnNeedRoom: "Add a room first.",
     pnIdeaList: ["Garage", "Balcony", "Bathroom", "Car boot", "Office"], cancel: "Cancel",
+    dtWhere: "Where it is", dtUpdated: (d: string) => `Updated ${d}`, dtMoved: "I moved it", dtEdit: "Edit", dtDelete: "Delete",
+    dtMovedOnce: (from: string) => `Moved once. Before: ${from}`, dtMovedMany: (n: number, from: string) => `Moved ${n} times. Before: ${from}`,
+    dtMoveTitle: "Where is it now?", dtMoveSave: "Save new place", dtShowPhoto: "Show photo", dtHidePhoto: "Hide photo",
+    dtDeleteTitle: "Delete this item?", dtDeleteBody: "It will be removed from your list and search.", dtNotFound: "This item is no longer here.",
+    dtNoPlace: "No place saved", dtSensitive: "Sensitive", dtPhotoHidden: "Sensitive: photo hidden",
     items: (n: number) => (n === 1 ? "1 item" : `${n} items`), lang: "BM",
   },
   ms: {
@@ -60,6 +65,11 @@ const S = {
     pnInside: "Dalam sesuatu tempat", pnInsideSub: "Macam almari, rak atau laci", pnParent: "Bilik yang mana?", pnName: "Nama tempat",
     pnPh: "cth. Garaj", pnIdeas: "Cadangan", pnSave: "Simpan tempat", pnNeedRoom: "Tambah bilik dahulu.",
     pnIdeaList: ["Garaj", "Balkoni", "Bilik air", "Bonet kereta", "Pejabat"], cancel: "Batal",
+    dtWhere: "Di mana", dtUpdated: (d: string) => `Dikemas kini ${d}`, dtMoved: "Dah alih", dtEdit: "Ubah", dtDelete: "Padam",
+    dtMovedOnce: (from: string) => `Pernah dialih sekali. Dulu: ${from}`, dtMovedMany: (n: number, from: string) => `Dialih ${n} kali. Dulu: ${from}`,
+    dtMoveTitle: "Di mana sekarang?", dtMoveSave: "Simpan tempat baru", dtShowPhoto: "Tunjuk gambar", dtHidePhoto: "Sembunyi gambar",
+    dtDeleteTitle: "Padam barang ini?", dtDeleteBody: "Ia akan dibuang daripada senarai dan carian anda.", dtNotFound: "Barang ini sudah tiada.",
+    dtNoPlace: "Tiada tempat disimpan", dtSensitive: "Sensitif", dtPhotoHidden: "Sensitif: gambar disembunyi",
     items: (n: number) => `${n} barang`, lang: "EN",
   },
 };

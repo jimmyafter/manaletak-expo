@@ -60,7 +60,11 @@ export default function Room() {
       {items.length === 0 ? <Text style={s.sub}>{t.rmEmpty}</Text> : null}
       <FlatList
         data={items} keyExtractor={(i) => i.id} contentContainerStyle={{ gap: 10, paddingBottom: 16 }} style={{ flex: 1 }}
-        renderItem={({ item }) => <Row item={item} hidden={t.findSensitive} />}
+        renderItem={({ item }) => (
+          <Pressable accessibilityRole="button" accessibilityLabel={item.name} onPress={() => router.push({ pathname: "/item/[id]", params: { id: item.id } })}>
+            <Row item={item} hidden={t.findSensitive} />
+          </Pressable>
+        )}
       />
       <Button label={t.rmAddItem} onPress={() => router.push({ pathname: "/confirm", params: { place: base } })} />
     </View>

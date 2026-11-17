@@ -25,6 +25,14 @@ export async function getDb(): Promise<SQLite.SQLiteDatabase> {
       deleted INTEGER NOT NULL DEFAULT 0
     );
     CREATE INDEX IF NOT EXISTS idx_items_room ON items(room, deleted);
+    CREATE TABLE IF NOT EXISTS item_moves (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      item_id TEXT NOT NULL,
+      from_path TEXT NOT NULL,
+      to_path TEXT NOT NULL,
+      moved_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_moves_item ON item_moves(item_id);
     CREATE TABLE IF NOT EXISTS places (
       path TEXT PRIMARY KEY NOT NULL,
       created_at INTEGER NOT NULL

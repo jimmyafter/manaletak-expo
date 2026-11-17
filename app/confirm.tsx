@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Keyboard, ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
 import { useT } from "../lib/i18n";
-import { activeCount, saveItem } from "../lib/repo";
+import { activeCount, getItem, photoUri, saveItem, updateItem } from "../lib/repo";
 import { atFreeCap } from "../lib/quota";
 import { Button } from "../lib/ui";
 import { color, font, radius } from "../lib/theme";
@@ -11,7 +11,9 @@ import { color, font, radius } from "../lib/theme";
 export default function Confirm() {
   const { t } = useT();
   const router = useRouter();
-  const { photo, place: placeParam } = useLocalSearchParams<{ photo?: string; place?: string }>();
+  const { photo, place: placeParam, id } = useLocalSearchParams<{ photo?: string; place?: string; id?: string }>();
+  const editing = !!id;
+  const [existingPhoto, setExistingPhoto] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [place, setPlace] = useState(placeParam ?? "");
   const [tags, setTags] = useState("");
@@ -22,7 +24,19 @@ export default function Confirm() {
   const scroll = useRef<ScrollView>(null);
   const ys = useRef<Record<string, number>>({});
 
-  useEffect(() => { activeCount().then((n) => setCapped(atFreeCap(n, false))); }, []);
+  useEffect(() => { if (!editing) activeCount().then((n) => setCapped(atFreeCap(n, false))); }, [editing]);
+
+  useEffect(() => {
+    if (!id) return;
+    getItem(String(id)).then((it) => {
+      if (!it) return;
+      setName(it.name);
+      setPlace(it.path_text);
+      setTags(it.tags.split(",").join(", "));
+      setSensitive(!!it.sensitive);
+      setExistingPhoto(it.sensitive ? null : photoUri(it.cover_photo));
+    });
+  }, [id]);
 
   useEffect(() => {
     const show = Keyboard.addListener("keyboardDidShow", (e) => setKb(e.endCoordinates.height));
@@ -38,6 +52,11 @@ export default function Confirm() {
   const save = async () => {
     if (!name.trim()) return setErr(t.cfNeedName);
     if (capped) return setErr(t.cfCap);
+    if (editing) {
+      await updateItem(String(id), { name, place, tags, sensitive });
+      router.back();
+      return;
+    }
     await saveItem({ name, place, tags, sensitive, photoUri: photo ?? null });
     router.dismissAll();
     router.replace("/find");
@@ -49,7 +68,7 @@ export default function Confirm() {
       contentContainerStyle={[s.body, { paddingBottom: 48 + kb }]}
       keyboardShouldPersistTaps="handled"
     >
-      {photo ? <Image source={{ uri: photo }} style={s.photo} contentFit="cover" accessibilityLabel="" /> : null}
+      {(photo ?? existingPhoto) ? <Image source={{ uri: (photo ?? existingPhoto) as string }} style={s.photo} contentFit="cover" accessibilityLabel="" /> : null}
       <Field label={t.cfItem} onY={track("name")}>
         <TextInput style={s.input} value={name} onChangeText={setName} onFocus={() => reveal("name")}
           placeholder={t.cfItemPh} placeholderTextColor={color.ink2} />

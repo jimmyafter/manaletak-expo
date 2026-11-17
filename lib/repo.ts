@@ -179,3 +179,50 @@ export async function deletePlace(path: string): Promise<void> {
     for (const p of saved) if (isUnder(p.path, base)) await db.runAsync(`DELETE FROM places WHERE path=?`, [p.path]);
   });
 }
+
+export async function getItem(id: string): Promise<Item | null> {
+  const db = await getDb();
+  return (await db.getFirstAsync<Item>(`SELECT * FROM items WHERE id=? AND deleted=0`, [id])) ?? null;
+}
+
+export async function moveCount(id: string): Promise<{ n: number; lastFrom: string }> {
+  const db = await getDb();
+  const rows = await db.getAllAsync<{ from_path: string }>(
+    `SELECT from_path FROM item_moves WHERE item_id=? ORDER BY moved_at DESC, id DESC`,
+    [id],
+  );
+  return { n: rows.length, lastFrom: rows[0]?.from_path ?? "" };
+}
+
+/** Change where an item is. Keeps a history row so the detail screen can say where it used to be. */
+export async function moveItem(id: string, place: string): Promise<void> {
+  const db = await getDb();
+  const it = await getItem(id);
+  if (!it) return;
+  const parts = normalizePath(place);
+  const to = joinPath(parts);
+  if (to === it.path_text) return;
+  const now = Date.now();
+  await db.withTransactionAsync(async () => {
+    await db.runAsync(`UPDATE items SET path_text=?, room=?, updated_at=? WHERE id=?`, [to, parts[0] ?? "", now, id]);
+    await db.runAsync(`INSERT INTO item_moves (item_id, from_path, to_path, moved_at) VALUES (?,?,?,?)`, [id, it.path_text, to, now]);
+    await reindex(it, to);
+  });
+}
+
+export async function updateItem(id: string, input: { name: string; place: string; tags: string; sensitive: boolean }): Promise<void> {
+  const db = await getDb();
+  const it = await getItem(id);
+  if (!it) return;
+  const tags = parseTags(input.tags).join(",");
+  const name = input.name.trim();
+  await db.runAsync(`UPDATE items SET name=?, tags=?, sensitive=?, updated_at=? WHERE id=?`, [name, tags, input.sensitive ? 1 : 0, Date.now(), id]);
+  await reindex({ id, name, tags }, it.path_text);
+  await moveItem(id, input.place);
+}
+
+export async function deleteItem(id: string): Promise<void> {
+  const db = await getDb();
+  await db.runAsync(`UPDATE items SET deleted=1, updated_at=? WHERE id=?`, [Date.now(), id]);
+  try { await db.runAsync(`DELETE FROM items_fts WHERE id=?`, [id]); } catch { /* ignore */ }
+}
