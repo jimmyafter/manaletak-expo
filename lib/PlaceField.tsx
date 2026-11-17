@@ -11,7 +11,7 @@ type Props = { value: string; onChangeText: (v: string) => void; onFocus?: () =>
 export function PlaceField({ value, onChangeText, onFocus, placeholder }: Props) {
   const { t } = useT();
   const [entries, setEntries] = useState<PlaceEntry[]>([]);
-  useEffect(() => { placeEntries().then(setEntries); }, []);
+  useEffect(() => { placeEntries().then(setEntries).catch(() => setEntries([])); }, []);
 
   const list = useMemo(() => suggestPlaces(entries, value, 6), [entries, value]);
   const hasChildren = (p: string) => entries.some((e) => e.path.startsWith(p + " > "));

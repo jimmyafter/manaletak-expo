@@ -5,13 +5,25 @@ export type Item = {
   sensitive: number; cover_photo: string | null; created_at: number; updated_at: number;
 };
 
-let _db: SQLite.SQLiteDatabase | null = null;
+// One shared promise: several screens ask for the database at the same moment on first launch,
+// and opening + setting it up more than once at the same time can fail with "database is locked".
+let _ready: Promise<SQLite.SQLiteDatabase> | null = null;
 
-export async function getDb(): Promise<SQLite.SQLiteDatabase> {
-  if (_db) return _db;
+export function getDb(): Promise<SQLite.SQLiteDatabase> {
+  if (!_ready) {
+    _ready = openAndMigrate().catch((e) => {
+      _ready = null; // let the next call try again
+      throw e;
+    });
+  }
+  return _ready;
+}
+
+async function openAndMigrate(): Promise<SQLite.SQLiteDatabase> {
   const db = await SQLite.openDatabaseAsync("manaletak.db");
   await db.execAsync(`
     PRAGMA journal_mode = WAL;
+    PRAGMA busy_timeout = 5000;
     CREATE TABLE IF NOT EXISTS items (
       id TEXT PRIMARY KEY NOT NULL,
       name TEXT NOT NULL,
@@ -46,6 +58,5 @@ export async function getDb(): Promise<SQLite.SQLiteDatabase> {
   } catch {
     /* fall back to LIKE */
   }
-  _db = db;
   return db;
 }

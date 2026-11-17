@@ -26,7 +26,7 @@ export default function Confirm() {
   const scroll = useRef<ScrollView>(null);
   const ys = useRef<Record<string, number>>({});
 
-  useEffect(() => { if (!editing) activeCount().then((n) => setCapped(atFreeCap(n, false))); }, [editing]);
+  useEffect(() => { if (!editing) activeCount().then((n) => setCapped(atFreeCap(n, false))).catch(() => {}); }, [editing]);
 
   useEffect(() => {
     if (!id) return;
