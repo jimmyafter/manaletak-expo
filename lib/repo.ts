@@ -236,3 +236,20 @@ export async function placeEntries(): Promise<PlaceEntry[]> {
   const saved = await db.getAllAsync<{ p: string; last: number }>(`SELECT path AS p, created_at AS last FROM places`);
   return withAncestors([...used, ...saved].map((r) => ({ path: r.p, last: r.last })));
 }
+
+/** Swap an item's cover photo for a new one. The old file is deleted. */
+export async function replacePhoto(id: string, srcUri: string): Promise<void> {
+  const db = await getDb();
+  const it = await getItem(id);
+  if (!it) return;
+  const name = storePhoto(srcUri);
+  await db.runAsync(`UPDATE items SET cover_photo=?, updated_at=? WHERE id=?`, [name, Date.now(), id]);
+  if (it.cover_photo) {
+    try {
+      const old = new File(photosDir(), it.cover_photo);
+      if (old.exists) old.delete();
+    } catch {
+      /* leaving an orphan file is harmless */
+    }
+  }
+}

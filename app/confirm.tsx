@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Keyboard, ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
 import { useT } from "../lib/i18n";
 import { activeCount, getItem, photoUri, saveItem, updateItem } from "../lib/repo";
@@ -15,6 +15,7 @@ export default function Confirm() {
   const { photo, place: placeParam, id } = useLocalSearchParams<{ photo?: string; place?: string; id?: string }>();
   const editing = !!id;
   const [existingPhoto, setExistingPhoto] = useState<string | null>(null);
+  const [hasPhoto, setHasPhoto] = useState(false);
   const [name, setName] = useState("");
   const [place, setPlace] = useState(placeParam ?? "");
   const [tags, setTags] = useState("");
@@ -35,9 +36,16 @@ export default function Confirm() {
       setPlace(it.path_text);
       setTags(it.tags.split(",").join(", "));
       setSensitive(!!it.sensitive);
-      setExistingPhoto(it.sensitive ? null : photoUri(it.cover_photo));
     });
   }, [id]);
+
+  // refresh the photo whenever we come back (for example after retaking it)
+  useFocusEffect(useCallback(() => {
+    if (!id) return;
+    getItem(String(id)).then((it) => {
+      if (it) { setHasPhoto(!!it.cover_photo); setExistingPhoto(it.sensitive ? null : photoUri(it.cover_photo)); }
+    });
+  }, [id]));
 
   useEffect(() => {
     const show = Keyboard.addListener("keyboardDidShow", (e) => setKb(e.endCoordinates.height));
@@ -69,7 +77,11 @@ export default function Confirm() {
       contentContainerStyle={[s.body, { paddingBottom: 48 + kb }]}
       keyboardShouldPersistTaps="handled"
     >
+      <Stack.Screen options={{ title: editing ? t.dtEdit : t.cfTitle }} />
       {(photo ?? existingPhoto) ? <Image source={{ uri: (photo ?? existingPhoto) as string }} style={s.photo} contentFit="cover" accessibilityLabel="" /> : null}
+      {editing ? (
+        <Button label={hasPhoto ? t.cfRetake : t.cfAddPhoto} kind="ghost" onPress={() => router.push({ pathname: "/retake", params: { id: String(id) } })} />
+      ) : null}
       <Field label={t.cfItem} onY={track("name")}>
         <TextInput style={s.input} value={name} onChangeText={setName} onFocus={() => reveal("name")}
           placeholder={t.cfItemPh} placeholderTextColor={color.ink2} />
