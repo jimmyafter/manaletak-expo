@@ -6,6 +6,7 @@ import { useT } from "../lib/i18n";
 import { activeCount, getItem, photoUri, saveItem, updateItem } from "../lib/repo";
 import { atFreeCap } from "../lib/quota";
 import { Button } from "../lib/ui";
+import { PlaceField } from "../lib/PlaceField";
 import { color, font, radius } from "../lib/theme";
 
 export default function Confirm() {
@@ -74,8 +75,7 @@ export default function Confirm() {
           placeholder={t.cfItemPh} placeholderTextColor={color.ink2} />
       </Field>
       <Field label={t.cfPlace} help={t.cfPlaceHelp} onY={track("place")}>
-        <TextInput style={s.input} value={place} onChangeText={setPlace} onFocus={() => reveal("place")}
-          placeholder={t.cfPlacePh} placeholderTextColor={color.ink2} />
+        <PlaceField value={place} onChangeText={setPlace} onFocus={() => reveal("place")} placeholder={t.cfPlacePh} />
       </Field>
       <Field label={t.cfTags} onY={track("tags")}>
         <TextInput style={s.input} value={tags} onChangeText={setTags} onFocus={() => reveal("tags")}

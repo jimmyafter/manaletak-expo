@@ -76,3 +76,35 @@ test("childNames lists direct children only, once each", () => {
   assert.deepEqual(childNames(paths, "Bilik tidur > Almari"), ["Laci 1", "Laci 2"]);
   assert.deepEqual(childNames(paths, "Stor"), []);
 });
+
+import { withAncestors, suggestPlaces } from "../lib/path.ts";
+
+const entries = withAncestors([
+  { path: "Bilik tidur > Almari > Laci 2", last: 300 },
+  { path: "Bilik tidur > Meja solek", last: 100 },
+  { path: "Dapur > Kabinet atas", last: 200 },
+  { path: "Stor > Rak 1", last: 50 },
+]);
+
+test("withAncestors adds parent levels once, not as 'own' places", () => {
+  const paths = entries.map((e) => e.path).sort();
+  assert.deepEqual(paths, ["Bilik tidur", "Bilik tidur > Almari", "Bilik tidur > Almari > Laci 2", "Bilik tidur > Meja solek", "Dapur", "Dapur > Kabinet atas", "Stor", "Stor > Rak 1"]);
+  assert.equal(entries.find((e) => e.path === "Bilik tidur")!.own, false);
+  assert.equal(entries.find((e) => e.path === "Bilik tidur")!.last, 300);
+});
+
+test("empty query suggests recent real places, newest first", () => {
+  assert.deepEqual(suggestPlaces(entries, "", 3), ["Bilik tidur > Almari > Laci 2", "Dapur > Kabinet atas", "Bilik tidur > Meja solek"]);
+});
+
+test("typing matches word starts, best match first, skipping the exact current place", () => {
+  assert.deepEqual(suggestPlaces(entries, "bil"), ["Bilik tidur", "Bilik tidur > Almari", "Bilik tidur > Almari > Laci 2", "Bilik tidur > Meja solek"]);
+  assert.deepEqual(suggestPlaces(entries, "laci"), ["Bilik tidur > Almari > Laci 2"]);
+  assert.deepEqual(suggestPlaces(entries, "Dapur"), ["Dapur > Kabinet atas"]);
+  assert.deepEqual(suggestPlaces(entries, "xyz"), []);
+});
+
+test("a trailing > lists what is inside, nearest levels first", () => {
+  assert.deepEqual(suggestPlaces(entries, "Bilik tidur > "), ["Bilik tidur > Almari", "Bilik tidur > Meja solek", "Bilik tidur > Almari > Laci 2"]);
+  assert.deepEqual(suggestPlaces(entries, "Stor >"), ["Stor > Rak 1"]);
+});

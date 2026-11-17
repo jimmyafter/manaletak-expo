@@ -1,13 +1,14 @@
 import { Image } from "expo-image";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { Item } from "../../lib/db";
 import { useKeyboardHeight } from "../../lib/keyboard";
 import { useT } from "../../lib/i18n";
 import { displayPath, normalizePath } from "../../lib/path";
 import { deleteItem, getItem, moveCount, moveItem, photoUri } from "../../lib/repo";
 import { Button, Card } from "../../lib/ui";
+import { PlaceField } from "../../lib/PlaceField";
 import { color, font, radius } from "../../lib/theme";
 
 export default function ItemDetail() {
@@ -88,7 +89,7 @@ export default function ItemDetail() {
       {moving ? (
         <View style={{ gap: 8 }}>
           <Text style={s.label}>{t.dtMoveTitle}</Text>
-          <TextInput style={s.input} value={newPlace} onChangeText={setNewPlace} placeholder={t.cfPlacePh} placeholderTextColor={color.ink2} autoFocus />
+          <PlaceField value={newPlace} onChangeText={setNewPlace} placeholder={t.cfPlacePh} />
           <Text style={s.help}>{t.cfPlaceHelp}</Text>
           <Button label={t.dtMoveSave} onPress={saveMove} />
           <Button label={t.cancel} kind="ghost" onPress={() => { setMoving(false); setNewPlace(item.path_text); }} />
@@ -122,6 +123,5 @@ const s = StyleSheet.create({
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: color.fieldBorder },
   dotLast: { width: 10, height: 10, borderRadius: 5, backgroundColor: color.accent },
   note: { fontSize: font.small, color: color.ink2, backgroundColor: color.sand, borderRadius: 16, padding: 12 },
-  input: { minHeight: 52, borderWidth: 1.5, borderColor: color.fieldBorder, borderRadius: radius.field, paddingHorizontal: 16, fontSize: font.body, color: color.ink, backgroundColor: color.surface },
   pair: { flexDirection: "row", gap: 12 },
 });

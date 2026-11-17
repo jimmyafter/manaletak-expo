@@ -36,6 +36,7 @@ const S = {
     dtMoveTitle: "Where is it now?", dtMoveSave: "Save new place", dtShowPhoto: "Show photo", dtHidePhoto: "Hide photo",
     dtDeleteTitle: "Delete this item?", dtDeleteBody: "It will be removed from your list and search.", dtNotFound: "This item is no longer here.",
     dtNoPlace: "No place saved", dtSensitive: "Sensitive", dtPhotoHidden: "Sensitive: photo hidden",
+    cfRecentPlaces: "Recent places", cfSuggestions: "Suggestions",
     items: (n: number) => (n === 1 ? "1 item" : `${n} items`), lang: "BM",
   },
   ms: {
@@ -70,6 +71,7 @@ const S = {
     dtMoveTitle: "Di mana sekarang?", dtMoveSave: "Simpan tempat baru", dtShowPhoto: "Tunjuk gambar", dtHidePhoto: "Sembunyi gambar",
     dtDeleteTitle: "Padam barang ini?", dtDeleteBody: "Ia akan dibuang daripada senarai dan carian anda.", dtNotFound: "Barang ini sudah tiada.",
     dtNoPlace: "Tiada tempat disimpan", dtSensitive: "Sensitif", dtPhotoHidden: "Sensitif: gambar disembunyi",
+    cfRecentPlaces: "Tempat terkini", cfSuggestions: "Cadangan",
     items: (n: number) => `${n} barang`, lang: "EN",
   },
 };

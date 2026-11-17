@@ -2,7 +2,7 @@ import { randomUUID } from "expo-crypto";
 import { Directory, File, Paths } from "expo-file-system";
 import { getDb, type Item } from "./db";
 import { likeName, rankScore, toFtsMatch } from "./search";
-import { normalizePath, joinPath, parseTags, roomOf, isUnder, replacePrefix, parentOf, childNames } from "./path";
+import { normalizePath, joinPath, parseTags, roomOf, isUnder, replacePrefix, parentOf, childNames, withAncestors, type PlaceEntry } from "./path";
 
 export type NewItem = { name: string; place: string; tags: string; sensitive: boolean; photoUri: string | null };
 
@@ -225,4 +225,14 @@ export async function deleteItem(id: string): Promise<void> {
   const db = await getDb();
   await db.runAsync(`UPDATE items SET deleted=1, updated_at=? WHERE id=?`, [Date.now(), id]);
   try { await db.runAsync(`DELETE FROM items_fts WHERE id=?`, [id]); } catch { /* ignore */ }
+}
+
+/** Every place the user has used or saved, with when it was last used. For the place suggestions. */
+export async function placeEntries(): Promise<PlaceEntry[]> {
+  const db = await getDb();
+  const used = await db.getAllAsync<{ p: string; last: number }>(
+    `SELECT path_text AS p, MAX(updated_at) AS last FROM items WHERE deleted=0 AND path_text<>'' GROUP BY path_text`,
+  );
+  const saved = await db.getAllAsync<{ p: string; last: number }>(`SELECT path AS p, created_at AS last FROM places`);
+  return withAncestors([...used, ...saved].map((r) => ({ path: r.p, last: r.last })));
 }
