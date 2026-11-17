@@ -58,17 +58,27 @@ export default function Confirm() {
   };
   const track = (key: string) => (y: number) => { ys.current[key] = y; };
 
+  const [saving, setSaving] = useState(false);
   const save = async () => {
+    if (saving) return;
+    setErr(null);
     if (!name.trim()) return setErr(t.cfNeedName);
     if (capped) return setErr(t.cfCap);
-    if (editing) {
-      await updateItem(String(id), { name, place, tags, sensitive });
-      router.back();
-      return;
+    setSaving(true);
+    try {
+      if (editing) {
+        await updateItem(String(id), { name, place, tags, sensitive });
+        router.back();
+        return;
+      }
+      await saveItem({ name, place, tags, sensitive, photoUri: photo ?? null });
+      router.dismissAll();
+      router.replace("/find");
+    } catch (e) {
+      setErr(`${t.saveFailed}: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setSaving(false);
     }
-    await saveItem({ name, place, tags, sensitive, photoUri: photo ?? null });
-    router.dismissAll();
-    router.replace("/find");
   };
 
   return (
@@ -103,7 +113,7 @@ export default function Confirm() {
       </View>
       {capped ? <Text style={s.warn}>{t.cfCap}</Text> : null}
       {err ? <Text style={s.err} accessibilityRole="alert">{err}</Text> : null}
-      <Button label={t.cfSave} onPress={save} />
+      <Button label={t.cfSave} onPress={save} disabled={saving} />
     </ScrollView>
   );
 }

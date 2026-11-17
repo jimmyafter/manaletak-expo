@@ -21,6 +21,7 @@ export default function ItemDetail() {
   const [showPhoto, setShowPhoto] = useState(false);
   const [moving, setMoving] = useState(false);
   const [newPlace, setNewPlace] = useState("");
+  const [moveErr, setMoveErr] = useState<string | null>(null);
 
   const load = useCallback(() => {
     getItem(String(id)).then((it) => { setItem(it); if (it) setNewPlace(it.path_text); });
@@ -37,9 +38,14 @@ export default function ItemDetail() {
   const date = new Date(item.updated_at).toLocaleDateString(lang === "ms" ? "ms-MY" : "en-GB", { day: "numeric", month: "short", year: "numeric" });
 
   const saveMove = async () => {
-    await moveItem(item.id, newPlace);
-    setMoving(false);
-    load();
+    try {
+      setMoveErr(null);
+      await moveItem(item.id, newPlace);
+      setMoving(false);
+      load();
+    } catch (e) {
+      setMoveErr(`${t.saveFailed}: ${e instanceof Error ? e.message : String(e)}`);
+    }
   };
   const remove = () =>
     Alert.alert(t.dtDeleteTitle, t.dtDeleteBody, [
@@ -91,6 +97,7 @@ export default function ItemDetail() {
           <Text style={s.label}>{t.dtMoveTitle}</Text>
           <PlaceField value={newPlace} onChangeText={setNewPlace} placeholder={t.cfPlacePh} />
           <Text style={s.help}>{t.cfPlaceHelp}</Text>
+          {moveErr ? <Text style={{ color: color.danger, fontSize: font.body, fontWeight: "600" }} accessibilityRole="alert">{moveErr}</Text> : null}
           <Button label={t.dtMoveSave} onPress={saveMove} />
           <Button label={t.cancel} kind="ghost" onPress={() => { setMoving(false); setNewPlace(item.path_text); }} />
         </View>
