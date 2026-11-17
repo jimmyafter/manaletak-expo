@@ -25,6 +25,10 @@ export async function getDb(): Promise<SQLite.SQLiteDatabase> {
       deleted INTEGER NOT NULL DEFAULT 0
     );
     CREATE INDEX IF NOT EXISTS idx_items_room ON items(room, deleted);
+    CREATE TABLE IF NOT EXISTS places (
+      path TEXT PRIMARY KEY NOT NULL,
+      created_at INTEGER NOT NULL
+    );
   `);
   // FTS5 is created separately: if a device build lacks it, search falls back to LIKE.
   try {

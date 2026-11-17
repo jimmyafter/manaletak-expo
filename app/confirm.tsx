@@ -11,9 +11,9 @@ import { color, font, radius } from "../lib/theme";
 export default function Confirm() {
   const { t } = useT();
   const router = useRouter();
-  const { photo } = useLocalSearchParams<{ photo?: string }>();
+  const { photo, place: placeParam } = useLocalSearchParams<{ photo?: string; place?: string }>();
   const [name, setName] = useState("");
-  const [place, setPlace] = useState("");
+  const [place, setPlace] = useState(placeParam ?? "");
   const [tags, setTags] = useState("");
   const [sensitive, setSensitive] = useState(false);
   const [err, setErr] = useState<string | null>(null);

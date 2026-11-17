@@ -41,3 +41,38 @@ test("free cap is 40 items and Plus is unlimited", () => {
   assert.equal(atFreeCap(FREE_ITEM_CAP, false), true);
   assert.equal(atFreeCap(999, true), false);
 });
+
+import { isUnder, replacePrefix, parentOf, nameOf, childNames } from "../lib/path.ts";
+
+test("isUnder matches the place itself and anything inside, not look-alikes", () => {
+  assert.equal(isUnder("Bilik tidur > Almari > Laci 2", "Bilik tidur"), true);
+  assert.equal(isUnder("Bilik tidur", "Bilik tidur"), true);
+  assert.equal(isUnder("Bilik tidur anak", "Bilik tidur"), false);
+  assert.equal(isUnder("Dapur", "Bilik tidur"), false);
+  assert.equal(isUnder("Dapur", ""), false);
+});
+
+test("replacePrefix renames a room and everything inside it", () => {
+  assert.equal(replacePrefix("Stor > Rak 1", "Stor", "Gudang"), "Gudang > Rak 1");
+  assert.equal(replacePrefix("Stor", "Stor", "Gudang"), "Gudang");
+  assert.equal(replacePrefix("Dapur > Kabinet", "Stor", "Gudang"), "Dapur > Kabinet");
+});
+
+test("replacePrefix can rename a place in the middle of a path and merge rooms", () => {
+  assert.equal(replacePrefix("Bilik tidur > Almari > Laci 2", "Bilik tidur > Almari", "Bilik tidur > Wardrobe"), "Bilik tidur > Wardrobe > Laci 2");
+  assert.equal(replacePrefix("Stor > Rak 1", "Stor", "Dapur"), "Dapur > Rak 1");
+});
+
+test("parentOf and nameOf", () => {
+  assert.equal(parentOf("A > B > C"), "A > B");
+  assert.equal(parentOf("A"), "");
+  assert.equal(nameOf("A > B > C"), "C");
+  assert.equal(nameOf(""), "");
+});
+
+test("childNames lists direct children only, once each", () => {
+  const paths = ["Bilik tidur > Almari > Laci 1", "Bilik tidur > Almari > Laci 2", "Bilik tidur > Meja", "Bilik tidur", "Dapur > Kabinet"];
+  assert.deepEqual(childNames(paths, "Bilik tidur"), ["Almari", "Meja"]);
+  assert.deepEqual(childNames(paths, "Bilik tidur > Almari"), ["Laci 1", "Laci 2"]);
+  assert.deepEqual(childNames(paths, "Stor"), []);
+});
