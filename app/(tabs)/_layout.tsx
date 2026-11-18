@@ -1,6 +1,7 @@
-import { Tabs } from "expo-router";
+import { Redirect, Tabs } from "expo-router";
 import { Text, View } from "react-native";
 import { useT } from "../../lib/i18n";
+import { useOnboarding } from "../../lib/onboarding";
 import { LangPill } from "../../lib/ui";
 import { color } from "../../lib/theme";
 
@@ -8,6 +9,9 @@ const glyph = (g: string) => ({ color: c }: { color: string }) => <Text style={{
 
 export default function TabsLayout() {
   const { t, toggle } = useT();
+  const { ready, done } = useOnboarding();
+  if (!ready) return null;
+  if (!done) return <Redirect href="/onboarding" />;
   return (
     <Tabs
       screenOptions={{

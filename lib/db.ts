@@ -45,6 +45,10 @@ async function openAndMigrate(): Promise<SQLite.SQLiteDatabase> {
       moved_at INTEGER NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_moves_item ON item_moves(item_id);
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY NOT NULL,
+      value TEXT NOT NULL
+    );
     CREATE TABLE IF NOT EXISTS places (
       path TEXT PRIMARY KEY NOT NULL,
       created_at INTEGER NOT NULL
