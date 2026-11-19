@@ -20,7 +20,9 @@ export default function Onboarding() {
 
   const finish = async () => {
     await complete();
-    router.replace("/");
+    // replayed from Settings: go back there. First launch: there is nothing behind us, so open the app.
+    if (router.canGoBack()) router.back();
+    else router.replace("/");
   };
 
   return (

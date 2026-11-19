@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useT } from "../lib/i18n";
 import { replacePhoto } from "../lib/repo";
-import { Button } from "../lib/ui";
+import { Button, TorchButton } from "../lib/ui";
 import { color, font } from "../lib/theme";
 
 /** Take a new photo for an item that is already saved. */
@@ -15,6 +15,7 @@ export default function Retake() {
   const [perm, ask] = useCameraPermissions();
   const cam = useRef<CameraView>(null);
   const [busy, setBusy] = useState(false);
+  const [torch, setTorch] = useState(false);
 
   if (!perm) return <View style={s.fill} />;
   if (!perm.granted) {
@@ -28,10 +29,13 @@ export default function Retake() {
   }
   return (
     <View style={s.fill}>
-      <CameraView ref={cam} style={s.cam} facing="back" />
+      <CameraView ref={cam} style={s.cam} facing="back" enableTorch={torch} />
       <View style={s.bar}>
         <Text style={s.hint}>{t.rtHint}</Text>
+        <View style={s.shootRow}>
+          <TorchButton on={torch} onPress={() => setTorch((v) => !v)} labelOn={t.tcOn} labelOff={t.tcOff} />
         <Button
+          style={{ flex: 1 }}
           label={t.capShoot}
           disabled={busy}
           onPress={async () => {
@@ -47,6 +51,7 @@ export default function Retake() {
             }
           }}
         />
+        </View>
         <Button label={t.cancel} kind="ghost" onPress={() => router.back()} />
       </View>
     </View>
@@ -59,5 +64,6 @@ const s = StyleSheet.create({
   p: { fontSize: font.body, color: color.ink2, lineHeight: 24 },
   cam: { flex: 1, margin: 16, borderRadius: 28, overflow: "hidden" },
   bar: { padding: 16, gap: 12 },
+  shootRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   hint: { fontSize: font.body, color: color.ink, textAlign: "center" },
 });

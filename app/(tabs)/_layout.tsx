@@ -1,14 +1,15 @@
-import { Redirect, Tabs } from "expo-router";
+import { Redirect, Tabs, useRouter } from "expo-router";
 import { Text, View } from "react-native";
 import { useT } from "../../lib/i18n";
 import { useOnboarding } from "../../lib/onboarding";
-import { LangPill } from "../../lib/ui";
+import { GearButton } from "../../lib/ui";
 import { color } from "../../lib/theme";
 
 const glyph = (g: string) => ({ color: c }: { color: string }) => <Text style={{ color: c, fontSize: 20 }}>{g}</Text>;
 
 export default function TabsLayout() {
-  const { t, toggle } = useT();
+  const { t } = useT();
+  const router = useRouter();
   const { ready, done } = useOnboarding();
   if (!ready) return null;
   if (!done) return <Redirect href="/onboarding" />;
@@ -21,7 +22,7 @@ export default function TabsLayout() {
         tabBarStyle: { backgroundColor: color.surface, borderTopColor: color.line, minHeight: 64 },
         headerStyle: { backgroundColor: color.ground },
         headerShadowVisible: false,
-        headerRight: () => <View style={{ marginRight: 12 }}><LangPill label={t.lang} onPress={toggle} /></View>,
+        headerRight: () => <View style={{ marginRight: 8 }}><GearButton label={t.stGear} onPress={() => router.push("/settings")} /></View>,
       }}
     >
       <Tabs.Screen name="index" options={{ title: t.tabCapture, tabBarIcon: glyph("＋") }} />

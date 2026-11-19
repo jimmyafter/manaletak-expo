@@ -15,6 +15,8 @@ function Inner() {
         <Stack.Screen name="confirm" options={{ title: t.cfTitle, presentation: "modal" }} />
         <Stack.Screen name="item/[id]" options={{ title: "" }} />
         <Stack.Screen name="retake" options={{ title: t.rtTitle }} />
+        <Stack.Screen name="settings" options={{ title: t.stTitle }} />
+        <Stack.Screen name="about" options={{ title: t.abTitle }} />
         <Stack.Screen name="room" options={{ title: "" }} />
         <Stack.Screen name="place-edit" options={{ title: t.peTitle }} />
         <Stack.Screen name="place-new" options={{ title: t.pnTitle }} />

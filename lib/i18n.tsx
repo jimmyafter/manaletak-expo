@@ -43,6 +43,12 @@ const S = {
       { title: "Say it.", body: "Hold the mic and say where it goes, in Bahasa Malaysia, English or both." },
       { title: "Find it.", body: "Search or ask out loud. You get the photo of the spot and the exact place." },
     ],
+    tcOn: "Turn the light on", tcOff: "Turn the light off",
+    stTitle: "Settings", stGear: "Settings", stLang: "Language", stPlus: "Mana Letak Plus", stPlusSub: "Unlimited items and cloud backup. Coming soon.",
+    stHelp: "Help and info", stIntro: "Show the intro again", stAbout: "About Mana Letak",
+    abTitle: "About", abTagline: "Remember where you put things.", abVersion: (v: string) => `Version ${v}`,
+    abPrivTitle: "Your things stay on your phone", abPrivBody: "Photos and items are saved on this phone. Nothing leaves it unless you turn on backup.",
+    abMade: "Made in Malaysia", abCopy: "© 2026 Mana Letak",
     saveFailed: "Could not save",
     cfRecentPlaces: "Recent places", cfSuggestions: "Suggestions",
     cfRetake: "Retake photo", cfAddPhoto: "Add photo", rtHint: "Photograph the item in its spot.", rtTitle: "New photo",
@@ -87,6 +93,12 @@ const S = {
       { title: "Cakap.", body: "Tekan mikrofon dan sebut di mana ia disimpan, dalam BM, English atau campur." },
       { title: "Cari.", body: "Taip atau tanya dengan suara. Anda dapat gambar tempat dan lokasi tepat." },
     ],
+    tcOn: "Hidupkan lampu", tcOff: "Matikan lampu",
+    stTitle: "Tetapan", stGear: "Tetapan", stLang: "Bahasa", stPlus: "Mana Letak Plus", stPlusSub: "Barang tanpa had dan sandaran awan. Akan datang.",
+    stHelp: "Bantuan dan maklumat", stIntro: "Tunjuk pengenalan semula", stAbout: "Tentang Mana Letak",
+    abTitle: "Tentang", abTagline: "Ingat di mana anda letak barang.", abVersion: (v: string) => `Versi ${v}`,
+    abPrivTitle: "Barang anda kekal dalam telefon", abPrivBody: "Gambar dan barang disimpan dalam telefon ini. Tiada apa keluar kecuali anda hidupkan sandaran.",
+    abMade: "Dibuat di Malaysia", abCopy: "© 2026 Mana Letak",
     saveFailed: "Gagal menyimpan",
     cfRecentPlaces: "Tempat terkini", cfSuggestions: "Cadangan",
     cfRetake: "Ambil gambar semula", cfAddPhoto: "Tambah gambar", rtHint: "Ambil gambar barang di tempatnya.", rtTitle: "Gambar baru",
@@ -95,8 +107,8 @@ const S = {
 };
 export type Strings = typeof S.en;
 
-type Ctx = { lang: Lang; t: Strings; toggle: () => void };
-const C = createContext<Ctx>({ lang: "en", t: S.en, toggle: () => {} });
+type Ctx = { lang: Lang; t: Strings; toggle: () => void; setLang: (l: Lang) => void };
+const C = createContext<Ctx>({ lang: "en", t: S.en, toggle: () => {}, setLang: () => {} });
 
 function initialLang(): Lang {
   try {
@@ -110,7 +122,7 @@ function initialLang(): Lang {
 export function LangProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLang] = useState<Lang>(initialLang);
   const value = useMemo(
-    () => ({ lang, t: S[lang] as Strings, toggle: () => setLang((l) => (l === "en" ? "ms" : "en")) }),
+    () => ({ lang, t: S[lang] as Strings, toggle: () => setLang((l) => (l === "en" ? "ms" : "en")), setLang }),
     [lang],
   );
   return <C.Provider value={value}>{children}</C.Provider>;
