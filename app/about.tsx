@@ -1,3 +1,4 @@
+import { Image } from "expo-image";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import appJson from "../app.json";
 import { useT } from "../lib/i18n";
@@ -10,7 +11,6 @@ export default function About() {
     <ScrollView contentContainerStyle={s.body}>
       <View style={s.hero}>
         <Logo />
-        <Text style={s.name}>Mana Letak</Text>
         <Text style={s.tagline}>{t.abTagline}</Text>
         <Text style={s.version}>{t.abVersion(version)}</Text>
       </View>
@@ -28,23 +28,22 @@ export default function About() {
   );
 }
 
-/** App logo: a location pin holding a small box, drawn with plain views. */
+/** The Mana Letak logo (assets/about-icon.png). It already spells out the name. */
 function Logo() {
   return (
-    <View style={s.logo} accessibilityRole="image" accessibilityLabel="Mana Letak">
-      <View style={s.pin} />
-      <View style={s.box} />
-    </View>
+    <Image
+      source={require("../assets/about-icon.png")}
+      style={s.logo}
+      contentFit="cover"
+      accessibilityLabel="Mana Letak"
+    />
   );
 }
 
 const s = StyleSheet.create({
   body: { padding: 16, gap: 20 },
   hero: { alignItems: "center", gap: 10, paddingTop: 12 },
-  logo: { width: 96, height: 96, borderRadius: 24, backgroundColor: color.accent, alignItems: "center", justifyContent: "center" },
-  pin: { width: 46, height: 46, backgroundColor: color.ground, borderTopLeftRadius: 23, borderTopRightRadius: 23, borderBottomLeftRadius: 23, borderBottomRightRadius: 0, transform: [{ rotate: "45deg" }], marginTop: -6 },
-  box: { position: "absolute", width: 20, height: 20, borderRadius: 5, backgroundColor: color.accent, marginTop: -10 },
-  name: { marginTop: 6, fontSize: font.h1, fontWeight: "800", color: color.ink },
+  logo: { width: 144, height: 144, borderRadius: 32 },
   tagline: { fontSize: font.body, color: color.ink2, textAlign: "center", maxWidth: 280, lineHeight: 23 },
   version: { fontSize: 13, fontWeight: "700", color: color.accentInk, backgroundColor: color.accentTint, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 6, overflow: "hidden" },
   note: { flexDirection: "row", gap: 12, padding: 16, borderRadius: radius.card, backgroundColor: color.sand, alignItems: "flex-start" },
