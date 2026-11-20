@@ -254,8 +254,8 @@ place on 85%+, acceptable item name on 90%+, no ID numbers in any output, no inj
 
 | | Free | Plus |
 | --- | --- | --- |
-| Price | RM0 | RM6.90 per month or RM49 per year (7-day trial) |
-| Items | Up to 40 | Unlimited |
+| Price | RM0 | RM3.90 per month or RM29 per year (7-day trial) |
+| Items | Up to 20 | Unlimited |
 | AI captures per month | 15 | 150 |
 | AI searches per month | 30 | 600 |
 | Cloud backup and restore | No | Yes |

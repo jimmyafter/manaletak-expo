@@ -36,7 +36,7 @@ test("parseTags lowercases and dedupes", () => {
   assert.deepEqual(parseTags("Penting, penting\nKunci"), ["penting", "kunci"]);
 });
 
-test("free cap is 40 items and Plus is unlimited", () => {
+test("free cap is 20 items and Plus is unlimited", () => {
   assert.equal(atFreeCap(FREE_ITEM_CAP - 1, false), false);
   assert.equal(atFreeCap(FREE_ITEM_CAP, false), true);
   assert.equal(atFreeCap(999, true), false);
