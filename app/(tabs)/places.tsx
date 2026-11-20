@@ -1,8 +1,10 @@
+import { Image } from "expo-image";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { useT } from "../../lib/i18n";
-import { activeCount, roomSummaries } from "../../lib/repo";
+import { activeCount, photoUri, roomSummaries, roomThumbs } from "../../lib/repo";
+import type { Thumb } from "../../lib/thumbs";
 import { Card } from "../../lib/ui";
 import { color, font, MIN_TOUCH, radius } from "../../lib/theme";
 
@@ -13,7 +15,8 @@ export default function Places() {
   const router = useRouter();
   const [rooms, setRooms] = useState<{ room: string; n: number }[]>([]);
   const [total, setTotal] = useState(0);
-  useFocusEffect(useCallback(() => { roomSummaries().then(setRooms); activeCount().then(setTotal); }, []));
+  const [thumbs, setThumbs] = useState<Record<string, Thumb[]>>({});
+  useFocusEffect(useCallback(() => { roomSummaries().then(setRooms); activeCount().then(setTotal); roomThumbs().then(setThumbs).catch(() => setThumbs({})); }, []));
 
   const goNew = () => router.push("/place-new");
   const data: Row[] = [...rooms, { room: "__new__", n: 0, isNew: true }];
@@ -44,7 +47,24 @@ export default function Places() {
               accessibilityRole="button" accessibilityLabel={`${item.room}, ${t.items(item.n)}`}
               style={{ flex: 1 }} onPress={() => router.push({ pathname: "/room", params: { name: item.room } })}
             >
-              <Card><View style={s.card}><Text style={s.name}>{item.room}</Text><Text style={s.sub}>{t.items(item.n)}</Text></View></Card>
+              <Card>
+                <View style={s.card}>
+                  {(thumbs[item.room] ?? []).length > 0 ? (
+                    <View style={s.thumbs}>
+                      {(thumbs[item.room] ?? []).map((th, i) => {
+                        const uri = th.sensitive ? null : photoUri(th.photo);
+                        return (
+                          <View key={i} style={s.thumb}>
+                            {th.sensitive ? <Text style={{ fontSize: 16 }}>🔒</Text> : uri ? <Image source={{ uri }} style={s.thumbImg} contentFit="cover" accessibilityLabel="" /> : null}
+                          </View>
+                        );
+                      })}
+                    </View>
+                  ) : null}
+                  <Text style={s.name}>{item.room}</Text>
+                  <Text style={s.sub}>{t.items(item.n)}</Text>
+                </View>
+              </Card>
             </Pressable>
           )
         }
@@ -59,7 +79,10 @@ const s = StyleSheet.create({
   sub: { fontSize: font.body, color: color.ink2 },
   plus: { width: MIN_TOUCH, height: MIN_TOUCH, borderRadius: 24, borderWidth: 1.5, borderColor: color.fieldBorder, alignItems: "center", justifyContent: "center" },
   plusText: { fontSize: 24, color: color.ink2 },
-  card: { padding: 16, minHeight: 96, gap: 2 },
+  card: { padding: 12, minHeight: 96, gap: 2 },
+  thumbs: { flexDirection: "row", gap: 6, marginBottom: 8 },
+  thumb: { width: 44, height: 44, borderRadius: 10, backgroundColor: color.sand, alignItems: "center", justifyContent: "center", overflow: "hidden" },
+  thumbImg: { width: 44, height: 44 },
   name: { fontSize: font.title, fontWeight: "800", color: color.ink },
   newTile: { minHeight: 96, borderRadius: radius.card, borderWidth: 1.5, borderStyle: "dashed", borderColor: color.fieldBorder, alignItems: "center", justifyContent: "center", gap: 4 },
   newText: { fontSize: font.small, fontWeight: "700", color: color.ink2 },

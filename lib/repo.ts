@@ -1,6 +1,7 @@
 import { randomUUID } from "expo-crypto";
 import { Directory, File, Paths } from "expo-file-system";
 import { getDb, type Item } from "./db";
+import { pickThumbs, type Thumb } from "./thumbs";
 import { likeName, rankScore, toFtsMatch } from "./search";
 import { normalizePath, joinPath, parseTags, roomOf, isUnder, replacePrefix, parentOf, childNames, withAncestors, type PlaceEntry } from "./path";
 
@@ -263,4 +264,13 @@ export async function getSetting(key: string): Promise<string | null> {
 export async function setSetting(key: string, value: string): Promise<void> {
   const db = await getDb();
   await db.runAsync(`INSERT INTO settings (key, value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value`, [key, value]);
+}
+
+/** Up to 3 newest items per room, for the thumbnail strip on the Places cards. Sensitive items never expose a photo. */
+export async function roomThumbs(): Promise<Record<string, Thumb[]>> {
+  const db = await getDb();
+  const rows = await db.getAllAsync<{ room: string; cover_photo: string | null; sensitive: number }>(
+    `SELECT room, cover_photo, sensitive FROM items WHERE deleted=0 AND room<>'' ORDER BY created_at DESC`,
+  );
+  return pickThumbs(rows, 3);
 }

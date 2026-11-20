@@ -108,3 +108,24 @@ test("a trailing > lists what is inside, nearest levels first", () => {
   assert.deepEqual(suggestPlaces(entries, "Bilik tidur > "), ["Bilik tidur > Almari", "Bilik tidur > Meja solek", "Bilik tidur > Almari > Laci 2"]);
   assert.deepEqual(suggestPlaces(entries, "Stor >"), ["Stor > Rak 1"]);
 });
+
+import { pickThumbs } from "../lib/thumbs.ts";
+
+test("pickThumbs keeps the first 3 per room, hides sensitive photos, skips rooms with no name", () => {
+  const rows = [
+    { room: "Stor", cover_photo: "a.jpg", sensitive: 0 },
+    { room: "Stor", cover_photo: "b.jpg", sensitive: 1 },
+    { room: "Dapur", cover_photo: null, sensitive: 0 },
+    { room: "Stor", cover_photo: "c.jpg", sensitive: 0 },
+    { room: "Stor", cover_photo: "d.jpg", sensitive: 0 },
+    { room: "", cover_photo: "x.jpg", sensitive: 0 },
+  ];
+  const r = pickThumbs(rows);
+  assert.deepEqual(r["Stor"], [
+    { photo: "a.jpg", sensitive: false },
+    { photo: null, sensitive: true },
+    { photo: "c.jpg", sensitive: false },
+  ]);
+  assert.deepEqual(r["Dapur"], [{ photo: null, sensitive: false }]);
+  assert.equal(r[""], undefined);
+});
