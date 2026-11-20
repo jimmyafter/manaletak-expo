@@ -16,6 +16,7 @@ function Inner() {
         <Stack.Screen name="item/[id]" options={{ title: "" }} />
         <Stack.Screen name="retake" options={{ title: t.rtTitle }} />
         <Stack.Screen name="settings" options={{ title: t.stTitle }} />
+        <Stack.Screen name="plus" options={{ title: "Mana Letak Plus" }} />
         <Stack.Screen name="about" options={{ title: t.abTitle }} />
         <Stack.Screen name="room" options={{ title: "" }} />
         <Stack.Screen name="place-edit" options={{ title: t.peTitle }} />

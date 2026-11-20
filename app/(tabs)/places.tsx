@@ -5,6 +5,7 @@ import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { useT } from "../../lib/i18n";
 import { activeCount, photoUri, roomSummaries, roomThumbs } from "../../lib/repo";
 import type { Thumb } from "../../lib/thumbs";
+import { FREE_ITEM_CAP } from "../../lib/quota";
 import { Card } from "../../lib/ui";
 import { color, font, MIN_TOUCH, radius } from "../../lib/theme";
 
@@ -30,6 +31,20 @@ export default function Places() {
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel={t.plAdd} onPress={goNew} style={s.plus}>
           <Text style={s.plusText}>＋</Text>
+        </Pressable>
+      </View>
+      <View style={s.cap}>
+        <View style={{ flex: 1, gap: 8 }}>
+          <View style={{ gap: 2 }}>
+            <Text style={s.capTitle}>{t.plCap(Math.min(total, FREE_ITEM_CAP), FREE_ITEM_CAP)}</Text>
+            <Text style={s.capSub}>{t.plCapSub}</Text>
+          </View>
+          <View style={s.bar} accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: FREE_ITEM_CAP, now: Math.min(total, FREE_ITEM_CAP) }}>
+            <View style={[s.barFill, { width: `${Math.min(100, (total / FREE_ITEM_CAP) * 100)}%` }]} />
+          </View>
+        </View>
+        <Pressable accessibilityRole="button" accessibilityLabel={t.plSeePlus} onPress={() => router.push("/plus")} style={s.capBtn}>
+          <Text style={s.capBtnText}>{t.plSeePlus}</Text>
         </Pressable>
       </View>
       {rooms.length === 0 ? <Text style={s.sub}>{t.placesEmpty}</Text> : null}
@@ -79,6 +94,13 @@ const s = StyleSheet.create({
   sub: { fontSize: font.body, color: color.ink2 },
   plus: { width: MIN_TOUCH, height: MIN_TOUCH, borderRadius: 24, borderWidth: 1.5, borderColor: color.fieldBorder, alignItems: "center", justifyContent: "center" },
   plusText: { fontSize: 24, color: color.ink2 },
+  cap: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, borderRadius: radius.card, backgroundColor: color.sand },
+  capTitle: { fontSize: 15, fontWeight: "700", color: color.ink },
+  capSub: { fontSize: 13, color: color.ink2 },
+  bar: { height: 8, borderRadius: 4, backgroundColor: "#D8CFC0", overflow: "hidden" },
+  barFill: { height: 8, borderRadius: 4, backgroundColor: color.accent },
+  capBtn: { minHeight: 44, paddingHorizontal: 16, borderRadius: 22, backgroundColor: color.accent, alignItems: "center", justifyContent: "center" },
+  capBtnText: { fontSize: 14, fontWeight: "700", color: "#fff" },
   card: { padding: 12, minHeight: 96, gap: 2 },
   thumbs: { flexDirection: "row", gap: 6, marginBottom: 8 },
   thumb: { width: 44, height: 44, borderRadius: 10, backgroundColor: color.sand, alignItems: "center", justifyContent: "center", overflow: "hidden" },
