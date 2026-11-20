@@ -41,7 +41,7 @@ users on Plus.
 | Item detail | Show the place and keep it current | Large photo, breadcrumb, "I moved it", history, edit, delete | Moved, deleted (undo for 5 s), sensitive |
 | Places | Browse rooms and containers | Room grid with item counts, free-tier cap banner | Empty room, rename, merge |
 | Onboarding | Explain in three cards | Show it, say it, find it | |
-| Plus paywall | Convert | Benefits, yearly and monthly plans, 1-month free trial | |
+| Plus paywall | Convert | Benefits, yearly and monthly plans, 7-day free trial | |
 
 Microcopy (BM / EN):
 
@@ -254,7 +254,7 @@ place on 85%+, acceptable item name on 90%+, no ID numbers in any output, no inj
 
 | | Free | Plus |
 | --- | --- | --- |
-| Price | RM0 | RM3.90 per month or RM29 per year (1-month free trial) |
+| Price | RM0 | RM3.90 per month or RM29 per year (7-day free trial) |
 | Items | Up to 20 | Unlimited |
 | AI captures per month | 15 | 150 |
 | AI searches per month | 30 | 600 |
